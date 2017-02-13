@@ -5,15 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication1"
         mc:Ignorable="d"
-        Title="MainWindow" Height="280.8" Width="459.8" Loaded="Window_Loaded" Closing="Window_Closing">
+        Title="MainWindow" Height="566.2" Width="459.8" Loaded="Window_Loaded" Closing="Window_Closing">
     <Grid Margin="0,0,0,48.8">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="141*"/>
             <ColumnDefinition Width="354*"/>
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
-        <TextBox x:Name="textBox_DisplayKeyboardInput" HorizontalAlignment="Left" Height="81" Margin="37,27,0,0" TextWrapping="Wrap" Text="Keys Pressed" VerticalAlignment="Top" Width="378" Grid.ColumnSpan="2" IsEnabled="False"/>
-        <Button x:Name="StartButton" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,156,0,0" VerticalAlignment="Top" Width="183" Height="39" Click="StartButton_Click"/>
+        <TextBox x:Name="textBox_DisplayKeyboardInput" HorizontalAlignment="Left" Height="63" Margin="46,222,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="378" Grid.ColumnSpan="2" IsEnabled="False"/>
+        <Button x:Name="StartButton" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,107,0,0" VerticalAlignment="Top" Width="183" Height="39" Click="StartButton_Click"/>
+        <Image x:Name="image" HorizontalAlignment="Left" Height="135" Margin="103,355,0,0" VerticalAlignment="Top" Width="271" Grid.ColumnSpan="2"/>
+        <Label x:Name="label" Content="Keys Pressed" Grid.Column="1" HorizontalAlignment="Left" Margin="67.4,196,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1" Content="Screenshot" Grid.Column="1" HorizontalAlignment="Left" Margin="67.4,324,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
