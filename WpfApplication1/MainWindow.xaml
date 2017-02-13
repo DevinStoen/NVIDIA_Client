@@ -13,8 +13,8 @@
             <ColumnDefinition Width="25*"/>
         </Grid.ColumnDefinitions>
         <TextBox x:Name="textBox_DisplayKeyboardInput" HorizontalAlignment="Left" Height="63" Margin="46,222,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="378" Grid.ColumnSpan="2" IsEnabled="False"/>
-        <Button x:Name="StartButton" Content="Start" Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,107,0,0" VerticalAlignment="Top" Width="183" Height="39" Click="StartButton_Click"/>
-        <Image x:Name="image" HorizontalAlignment="Left" Height="135" Margin="103,355,0,0" VerticalAlignment="Top" Width="271" Grid.ColumnSpan="2"/>
+        <Button x:Name="StartButton" Content="Start Playing" Grid.Column="1" HorizontalAlignment="Left" Margin="10.4,107,0,0" VerticalAlignment="Top" Width="183" Height="39" Click="StartButton_Click"/>
+        <Image x:Name="pictureBox1" HorizontalAlignment="Left" Height="135" Margin="103,355,0,0" VerticalAlignment="Top" Width="271" Grid.ColumnSpan="2" IsEnabled="False"/>
         <Label x:Name="label" Content="Keys Pressed" Grid.Column="1" HorizontalAlignment="Left" Margin="67.4,196,0,0" VerticalAlignment="Top"/>
         <Label x:Name="label1" Content="Screenshot" Grid.Column="1" HorizontalAlignment="Left" Margin="67.4,324,0,0" VerticalAlignment="Top"/>
 
