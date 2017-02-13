@@ -13,6 +13,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Drawing;
+using System.Drawing.Imaging;
+
+
+
 
 namespace WpfApplication1
 {
@@ -51,6 +56,7 @@ namespace WpfApplication1
                 if (e.KeyPressed.ToString() == "H")
                 {
                     System.Console.WriteLine("screenshot!");
+                    capture();
                     //take the screenshot
                 }
             }
@@ -66,5 +72,57 @@ namespace WpfApplication1
         {
             startPressed = true;
         }
+
+        private void capture()
+        {
+            //Bitmap bitmap = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            //Graphics graphics = Graphics.FromImage(bitmap as Image);
+
+            //graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
+            //pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
+            //pictureBox1.Image = bitmap;
+            ////Img1 = bitmap;
+
+            //bitmap.Save("screenshotImage.jpg");
+            //bitmap.Save("C:\\temp2.png");
+
+            double screenLeft = SystemParameters.VirtualScreenLeft;
+            double screenTop = SystemParameters.VirtualScreenTop;
+            double screenWidth = SystemParameters.VirtualScreenWidth;
+            double screenHeight = SystemParameters.VirtualScreenHeight;
+
+            using (Bitmap bmp = new Bitmap((int)screenWidth,
+                 (int)screenHeight))
+            {
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    //String filename = "ScreenCapture-" + DateTime.Now.ToString("ddMMyyyy-hhmmss") + ".png";
+                    Opacity = .0;
+                    g.CopyFromScreen((int)screenLeft, (int)screenTop, 0, 0, bmp.Size);
+                    bmp.Save("capturefile.png");///save the image to
+                    
+                    Opacity = 1;
+                }
+
+            }
+        }
+
+        //public static void Save(this BitmapImage image, string filePath)
+        //{
+        //    BitmapEncoder encoder = new PngBitmapEncoder();
+        //    encoder.Frames.Add(BitmapFrame.Create(image));
+
+        //    using (var fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
+        //    {
+        //        encoder.Save(fileStream);
+        //    }
+        //}
+
+
+
+
+
+
+
     }
 }
