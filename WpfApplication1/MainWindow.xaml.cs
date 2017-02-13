@@ -21,7 +21,7 @@ namespace WpfApplication1
     /// </summary>
     public partial class MainWindow : Window
     {
-
+        bool startPressed = false;
         private LowLevelKeyboardListener _listener;
 
         public MainWindow()
@@ -36,16 +36,23 @@ namespace WpfApplication1
             _listener.OnKeyPressed += listener_OnKeyPressed;
                
             _listener.HookKeyboard();
-        
+            this.textBox_DisplayKeyboardInput.Text = "";
+
+
         }
 
         private void listener_OnKeyPressed(object sender, KeyPressedArgs e)
         {
-            this.textBox_DisplayKeyboardInput.Text += e.KeyPressed.ToString();
 
-            if(e.KeyPressed.ToString() == "H")
+            if (startPressed)
             {
-                System.Console.WriteLine("screenshot!");
+                this.textBox_DisplayKeyboardInput.Text += e.KeyPressed.ToString();
+
+                if (e.KeyPressed.ToString() == "H")
+                {
+                    System.Console.WriteLine("screenshot!");
+                    //take the screenshot
+                }
             }
 
         }
@@ -53,6 +60,11 @@ namespace WpfApplication1
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             _listener.UnHookKeyboard();
+        }
+
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
+            startPressed = true;
         }
     }
 }
