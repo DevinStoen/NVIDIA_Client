@@ -67,6 +67,11 @@ namespace WpfApplication1
                     System.Console.WriteLine("Trying send the image");
                     sendImage();
                 }
+                if (e.KeyPressed.ToString() == "C")
+                {
+                    System.Console.WriteLine("write byte");
+                    System.Console.WriteLine(converTobyte(bmp));
+                }
             }
 
         }
@@ -113,13 +118,16 @@ namespace WpfApplication1
 
             }
         }
-
+        
         private void sendImage()
         {
             byte[] data = new byte[1024];
-            int sent;
+            //int sent;
+
+            //Fill IP
             IPEndPoint ipep = new IPEndPoint(IPAddress.Parse("128.95.31.226"), 2004); 
 
+            //create a socket
             Socket server = new Socket(AddressFamily.InterNetwork,
                             SocketType.Stream, ProtocolType.Tcp);
 
@@ -134,38 +142,58 @@ namespace WpfApplication1
                 Console.ReadLine();
             }
 
+            MemoryStream ms = new MemoryStream();
+            double screenWidth = SystemParameters.VirtualScreenWidth;
+            double screenHeight = SystemParameters.VirtualScreenHeight;
 
-            //Bitmap bmp = new Bitmap("c:\\eek256.jpg");
+            Bitmap bitmap = new Bitmap((int)screenWidth, (int)screenHeight);
+            Graphics graphics = Graphics.FromImage(bitmap);
+            graphics.CopyFromScreen(0, 0, 0, 0, bitmap.Size);
+            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Jpeg);//save bitmap to MemoryStream so I can read length
+            bitmap.Save("PLEASEWORK.png");///save the image to
+            byte[] bytes = ms.ToArray();
 
-            //MemoryStream ms = new MemoryStream();
-            // Save to memory using the Jpeg format
-            //bmp.Save(ms, ImageFormat.Jpeg);
-            MemoryStream memory = new MemoryStream();
-            //Bitmap newBitmap = new Bitmap(bmp);
-            //bmp.Dispose();
-            //bmp = null;
-            //do something
-            //bmp.Save(memory, ImageFormat.Jpeg);
+            ms.Close(); //close the MemoryStream when done
 
-            //byte[] bytes = ConvertBitMapToByteArray(bmp);
-            //byte[] bytes = ImageToByte(bmp);
-            byte[] bytes = BitmapToByteArray(bmp);
-            //MemoryStream ms = new MemoryStream();
-            //bmp.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
-            // Byte[] bytes = ms.ToArray();
-
-            // read to end
-            //byte[] bmpBytes = ms.GetBuffer();
-            //bmp.Dispose();
-            //ms.Close();
-
-            sent = SendVarData(server, bytes);
-
+            string textToSend = DateTime.Now.ToString();
+            byte[] bytesToSend = ASCIIEncoding.ASCII.GetBytes(textToSend);
+            System.Console.WriteLine(textToSend);
+            
+            server.BeginSend(bytesToSend, 0, bytesToSend.Length, 0, new AsyncCallback(SendCallback), server);
+            //sent = SendVarData(server, bytes);
+            //sent = SendVarData(server, bytesToSend);
+           
             Console.WriteLine("Disconnecting from server...");
             server.Shutdown(SocketShutdown.Both);
             server.Close();
             Console.ReadLine();
         }
+
+
+        //calls this function when we get a response
+        private static void SendCallback(IAsyncResult ar)
+        {
+            try
+            {
+                // Retrieve the socket from the state object.  
+                Socket handler = (Socket)ar.AsyncState;
+
+                // Complete sending the data to the remote device.  
+                int bytesSent = handler.EndSend(ar);
+                Console.WriteLine("Sent {0} bytes to client.", bytesSent);
+
+                handler.Shutdown(SocketShutdown.Both);
+                handler.Close();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
+
+
+
         private int SendVarData(Socket s, byte[] data)
         {
             int total = 0;
@@ -186,13 +214,21 @@ namespace WpfApplication1
             return total;
         }
 
+        private byte[] converTobyte(Bitmap bmp)
+        {
+            using (MemoryStream m = new MemoryStream())
+            {
+                bmp.Save(m, bmp.RawFormat);
+                return m.ToArray();
+            }
+        }
         public byte[] ConvertBitMapToByteArray(Bitmap bitmap)
         {
             byte[] result = null;
             if (bitmap != null)
             {
                 MemoryStream stream = new MemoryStream();
-                bitmap.Save(stream, bitmap.RawFormat);
+                bitmap.Save(stream, bitmap.RawFormat);////??????
                 result = stream.ToArray();
             }
             return result;
@@ -202,6 +238,8 @@ namespace WpfApplication1
             ImageConverter converter = new ImageConverter();
             return (byte[])converter.ConvertTo(img, typeof(byte[]));
         }
+
+        
         //public static void Save(this BitmapImage image, string filePath)
         //{
         //    BitmapEncoder encoder = new PngBitmapEncoder();
@@ -212,6 +250,7 @@ namespace WpfApplication1
         //        encoder.Save(fileStream);
         //    }
         //}
+        /*
         public static byte[] BitmapToByteArray(Bitmap bitmap)
         {
 
@@ -234,12 +273,7 @@ namespace WpfApplication1
                     bitmap.UnlockBits(bmpdata);
             }
 
-        }
-
-
-
-
-
+        }*/
 
     }
 }
